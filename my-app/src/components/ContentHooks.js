@@ -5,15 +5,20 @@ import PostItem from './PostItem';
 import Loader from './Loader';
 
 function ContentHooks() {
+    // usestate functions with variables and their 
+    // methods
     const [isLoaded, loadContent] = useState(false)
     const [fetchedPosts, fetchPost] = useState([])
 
     useEffect(() => {
       setTimeout(() => {
-        isLoaded = true,
-        fetchedPosts = savedPosts
+        // Use setter functions not the variable itself
+        loadContent(true)
+        fetchPost(savedPosts)
       }, 2000)
-    })
+      // Include empty array as a parameter as we only
+      // want to run the function once
+    }, [])
 
   const handleChange = (event) => {
     // Stores event and assigns it to name variable
@@ -23,14 +28,14 @@ function ContentHooks() {
     const filteredPosts = savedPosts.filter((post) => {
       return post.name.toLowerCase().includes(name)
     })
-    // Sets empty array posts state to filteredposts
-    fetchedPosts = filteredPosts
+    // Setter function callback and passes filteredposts
+    fetchPost(filteredPosts)
   }
 
   return (
-    <div>
       <div className={css.Content}>
         <div className={css.TitleBar}>
+          <h1>My Photos</h1>
           <form>
             <label htmlFor='searchInput'>Search</label>
             <input
@@ -39,12 +44,12 @@ function ContentHooks() {
               // Add onChange attribute to input field 
               // that stores user event
               // and refers to handleChange function
-              onChange={(event) => handleChange(event)}
+              onChange={(event) => {handleChange(event)}}
             />
             {/* Returns length of posts */}
             <h4>posts found: {fetchedPosts.length}</h4>
           </form>
-          <h1 style={{ marginLeft: '10px' }}>My Photos</h1>
+          </div>
           <div className={css.SearchResults}>
             {
               isLoaded ?
@@ -53,10 +58,8 @@ function ContentHooks() {
                 <PostItem savedPosts={fetchedPosts} />
                 : <Loader />
             }
-          </div>
         </div>
       </div>
-    </div>
   )
 }
 

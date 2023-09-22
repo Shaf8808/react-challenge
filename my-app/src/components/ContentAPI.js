@@ -1,27 +1,36 @@
 import React, { Component } from 'react'
 import css from "./css/Content.module.css";
-import {savedPosts} from '../posts.json'
 import PostItem from './PostItem';
 import Loader from './Loader';
+import PostItemAPI from './PostItemAPI';
+import axios from 'axios'
+import API_KEY from '../secrets'; // Store API key in secrets.js
 
-export class Content extends Component {
+export class ContentAPI extends Component {
     constructor(props) {
       super(props)
 
       this.state = {
         isLoaded: false,
-        posts: []
+        posts: [],
+        savedPosts: []
       }
     }
 
     componentDidMount() {
-      setTimeout(() => {
-        this.setState({
-          isLoaded: true,
-          posts: savedPosts,
-        })
-      }, 4000)
+      this.fetchImages()
       
+    }
+
+    async fetchImages() {
+      const response = await axios.get(`https://pixabay.com/api/?key=${API_KEY}&per_page=10`) // API url with API key using backticks
+      const fetchedPosts = response.data.hits
+      console.log(response)
+      this.setState({
+        isLoaded: true,
+        posts: fetchedPosts,
+        savedPosts: fetchedPosts
+      })
     }
 
     handleChange = (event) => {
@@ -29,8 +38,8 @@ export class Content extends Component {
       const name = event.target.value.toLowerCase()
       // Filters posts and then returns a post in relation to name
       // variable
-      const filteredPosts = savedPosts.filter((post) => {
-        return post.name.toLowerCase().includes(name)
+      const filteredPosts = this.state.savedPosts.filter((post) => {
+        return post.user.toLowerCase().includes(name)
       })
       // Sets empty array posts state to filteredposts
       this.setState ({
@@ -43,6 +52,7 @@ export class Content extends Component {
     return (
       <div className={css.Content}>
         <div className={css.TitleBar}>
+          <h1 style={{ marginLeft: '10px' }}>My Photos</h1>
           <form>
             <label htmlFor='searchInput'>Search</label>
             <input 
@@ -56,20 +66,20 @@ export class Content extends Component {
             {/* Returns length of posts */}
             <h4>posts found: {this.state.posts.length}</h4>
           </form>
-            <h1 style={{marginLeft: '10px'}}>My Photos</h1>
+        </div>
             <div className={css.SearchResults}>
               { 
                 this.state.isLoaded ?
                 // Sending posts state value to the child component
                 // PostItem.js
-                <PostItem savedPosts={this.state.posts} />
+                <PostItemAPI savedPosts={this.state.posts} />
                 : <Loader />
               }
             </div>
-        </div>
+        
       </div>
     )
   }
 }
 
-export default Content
+export default ContentAPI
